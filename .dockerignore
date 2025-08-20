@@ -1,0 +1,15 @@
+.git
+**/__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.log
+.idea
+.Python
+env
+venv/
+.venv
+.env
+**/migrations/*.py
+!**/migrations/__init__.py
+static/media/hotels/

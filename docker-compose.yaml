@@ -1,0 +1,113 @@
+services:
+  db:
+    container_name: kuda_ugodno_backend_db
+    image: postgres:17.5
+    restart: unless-stopped
+    env_file:
+      - .env
+    expose:
+      - 5432
+    volumes:
+#      - ${POSTGRES_VOLUME_PATH}/postgres:/var/lib/postgresql/data
+#      - ${POSTGRES_VOLUME_PATH}/logs:/var/log/postgresql
+      - ku_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ 'CMD-SHELL', '-c', 'pg_isready -U $POSTGRES_USER -d $POSTGRES_DB' ]
+      interval: 5s
+      retries: 5
+      timeout: 10s
+    networks:
+      - 36_kuda_ugodno_backend
+
+  app:
+    container_name: kuda_ugodno_backend_api
+    build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - .:/app:cached
+      - static_data:/app/static
+#      - ${APP_VOLUME_PATH}:/app/static
+    env_file:
+      - .env
+    command: >
+      sh -c 'python3 manage.py collectstatic --noinput &&
+             python3 manage.py makemigrations --noinput &&
+             python3 manage.py migrate &&
+             python3 manage.py c_hotel &&
+             gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 120 --preload'
+    networks:
+#      - default
+      - 36_kuda_ugodno_backend
+
+  redis:
+    container_name: kuda_ugodno_backend_redis
+    image: redis
+    restart: unless-stopped
+    expose:
+      - 6379
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - 36_kuda_ugodno_backend
+
+  celery:
+    container_name: kuda_ugodno_backend_celery_worker
+    build: .
+    command: celery -A config worker --loglevel=info --concurrency=1 --max-tasks-per-child=1
+    depends_on:
+      - redis
+      - db
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    networks:
+      - 36_kuda_ugodno_backend
+
+  celery_beat:
+    container_name: kuda_ugodno_backend_celery_beat
+    build: .
+    command: celery -A config beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    depends_on:
+      - redis
+      - db
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    networks:
+      - 36_kuda_ugodno_backend
+
+  nginx:
+    image: nginx:latest
+    container_name: kuda_ugodno_backend_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - app
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - static_data:/app/static
+    networks:
+      - 36_kuda_ugodno_backend
+
+networks:
+#  default:
+#    name: nginx_network
+#    external: True
+  36_kuda_ugodno_backend:
+    name: 36_kuda_ugodno_backend
+
+volumes:
+  ku_data:
+  static_data:
