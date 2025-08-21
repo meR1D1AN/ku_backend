@@ -162,7 +162,3 @@ cython_debug/
 static/admin/
 static/rest_framework/
 # ВАЖНО: static/media НЕ игнорируем : файлы храним в репо (пока так 14/08/2025)
-
-# Django migrations — не трекаем initial (min набор)
-**/migrations/*.py
-!**/migrations/__init__.py
