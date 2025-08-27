@@ -7,6 +7,7 @@ from hotels.models import Hotel, HotelPhoto, HotelRules, HotelWhatAbout, TypeOfM
 class HotelAdmin(admin.ModelAdmin):
     list_display = ("id", "type_of_rest", "name", "country", "city", "address")
     list_display_links = ("id", "name")
+    search_fields = ("id",)
 
 
 @admin.register(HotelWhatAbout)

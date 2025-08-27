@@ -45,7 +45,7 @@ class PriceValidator:
     """
 
     def __call__(self, attrs):
-        price = attrs.get("price")
+        price = attrs.get("total_price")
         if price is not None and price < 0:
-            raise serializers.ValidationError({"price": "Стоимость не может быть отрицательной."})
+            raise serializers.ValidationError({"total_price": "Стоимость не может быть отрицательной."})
         return attrs

@@ -11,6 +11,7 @@ class RoomAdmin(admin.ModelAdmin):
         "number_of_adults",
     )
     list_display_links = ("id",)
+    search_fields = ("id",)
 
 
 @admin.register(RoomPhoto)

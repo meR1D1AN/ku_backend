@@ -267,6 +267,7 @@ class CommentLikeViewSet(
 ):
     serializer_class = CommentLikeSerializer
     permission_classes = [permissions.IsAuthenticated]
+    queryset = CommentLike.objects.none()
 
     def get_queryset(self):
         request: Request = self.request

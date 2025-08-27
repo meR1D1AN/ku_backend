@@ -107,7 +107,7 @@ class CommentSerializer(serializers.ModelSerializer):
         )
 
     # рекурсивная выдача ответов (до 2-го уровня)
-    def get_replies(self, obj):
+    def get_replies(self, obj: Comment) -> list[dict[str, Any]]:
         depth = self.context.get("depth", 0)
         if depth >= 2:
             return []
@@ -116,11 +116,11 @@ class CommentSerializer(serializers.ModelSerializer):
         return CommentSerializer(qs, many=True, context=ctx).data
 
     @staticmethod
-    def get_likes_count(obj):  # noqa: D401
+    def get_likes_count(obj: Comment) -> int:  # noqa: D401
         return obj.likes.filter(is_like=True).count()
 
     @staticmethod
-    def get_dislikes_count(obj):  # noqa: D401
+    def get_dislikes_count(obj: Comment) -> int:  # noqa: D401
         return obj.likes.filter(is_like=False).count()
 
 

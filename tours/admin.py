@@ -22,7 +22,7 @@ class TourAdmin(admin.ModelAdmin):
         "is_active",
     )
     list_filter = ("tour_operator", "hotel")
-    search_fields = ("start_date", "hotel__name", "tour_operator__company_name")
+    search_fields = ("id", "start_date", "hotel__name", "tour_operator__company_name")
 
     @admin.display(description="Туроператор")
     def get_tour_operator_name(self, obj):

@@ -159,6 +159,10 @@ class Tour(models.Model):
         verbose_name = "Тур"
         verbose_name_plural = "Туры"
         ordering = ("start_date",)
+        indexes = [
+            models.Index(fields=["publish_start_date", "publish_end_date"], name="idx_tours_dates"),
+            models.Index(fields=["hotel_id"], name="idx_tours_hotel"),
+        ]
 
     def __str__(self):
         hotel_name = self.hotel.name if self.hotel else "неизвестный отель"

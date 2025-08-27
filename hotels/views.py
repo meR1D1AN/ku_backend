@@ -36,19 +36,9 @@ from all_fixture.errors.views_error import (
 from all_fixture.pagination import CustomLOPagination
 from all_fixture.views_fixture import (
     DISCOUNT_SETTINGS,
-    FILTER_CITY,
-    FILTER_PLACE,
-    FILTER_STAR_CATEGORY,
-    FILTER_TYPE_OF_REST,
-    FILTER_USER_RATING,
-    HOTEL_CHECK_IN,
-    HOTEL_CHECK_OUT,
-    HOTEL_GUESTS,
     HOTEL_ID,
     HOTEL_ID_PHOTO,
     HOTEL_PHOTO_SETTINGS,
-    HOTEL_PRICE_GTE,
-    HOTEL_PRICE_LTE,
     HOTEL_SETTINGS,
     ID_HOTEL,
     LIMIT,
@@ -78,6 +68,14 @@ class HotelRelatedViewSet(viewsets.ModelViewSet):
     error_message = None
 
     def get_hotel(self):
+        """
+        Возвращает экземпляр отеля, который отображается в представлении.
+        Возвращает `self._hotel`, если он уже установлен, в противном случае
+        выполняет запрос к базе данных для поиска отеля по первичному ключу
+        `self.hotel_lookup_field` и сохраняет результат в `self._hotel`.
+        Вызывает ошибку 404, если отель не найден.
+        """
+
         if not hasattr(self, "_hotel"):
             hotel_id = self.kwargs.get(self.hotel_lookup_field)
             try:
@@ -87,14 +85,27 @@ class HotelRelatedViewSet(viewsets.ModelViewSet):
         return self._hotel
 
     def get_queryset(self):
+        """
+        Возвращает QuerySet для представления, фильтруя по id отеля.
+        """
+
         hotel = self.get_hotel()
         return self.model.objects.filter(hotel_id=hotel.id)
 
     def perform_create(self, serializer):
+        """
+        Сохраняет объект с переданным отелем из метода get_hotel.
+        Вызывает `serializer.save(hotel=hotel)` для сохранения объекта.
+        """
+
         hotel = self.get_hotel()
         serializer.save(hotel=hotel)
 
     def get_object(self):
+        """
+        Возвращает объект, если он существует, или 404, если объект не найден.
+        """
+
         hotel = self.get_hotel()
         try:
             return self.model.objects.select_related("hotel").get(
@@ -113,16 +124,6 @@ class HotelRelatedViewSet(viewsets.ModelViewSet):
         parameters=[
             LIMIT,
             OFFSET,
-            HOTEL_CHECK_IN,
-            HOTEL_CHECK_OUT,
-            HOTEL_GUESTS,
-            FILTER_CITY,
-            FILTER_TYPE_OF_REST,
-            FILTER_PLACE,
-            HOTEL_PRICE_GTE,
-            HOTEL_PRICE_LTE,
-            FILTER_USER_RATING,
-            FILTER_STAR_CATEGORY,
         ],
         responses={
             200: OpenApiResponse(

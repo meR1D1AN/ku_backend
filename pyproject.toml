@@ -11,7 +11,7 @@ authors = [
 
 [tool.poetry.dependencies]
 python = "^3.12"
-django = "^5.2.4"
+django = "^5.2.5"
 djangorestframework = "^3.16.0"
 pillow = "^11.3.0"
 psycopg2-binary = "^2.9.10"

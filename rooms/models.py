@@ -154,6 +154,12 @@ class Room(models.Model):
         verbose_name = "Номер"
         verbose_name_plural = "Номера"
         ordering = ("hotel",)
+        indexes = [
+            models.Index(
+                fields=["hotel", "number_of_adults", "number_of_children"],
+                name="idx_rooms_hotel_guests",
+            ),
+        ]
 
     def __str__(self):
         return f"№{self.pk} - {self.category} в {self.hotel.name} №{self.hotel.pk}"

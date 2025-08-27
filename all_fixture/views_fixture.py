@@ -871,3 +871,18 @@ COMMENT_Q = OpenApiParameter(
     description="Фильтр по комментарию (ID)",
     required=False,
 )
+
+MIN_RATING = 0
+MAX_RATING = 10
+MIN_STARS = 0
+MAX_STARS = 5
+MIN_GUESTS = 1
+MAX_GUESTS = 20
+MIN_PRICE = 0
+MAX_PRICE = 10000000
+MAX_DAYS = 365
+MIN_NIGHTS = 1
+MAX_NIGHTS = 20
+MIN_ADULT = 1
+MAX_ADULT_CHILDREN = 19
+MIN_CHILDREN = 0

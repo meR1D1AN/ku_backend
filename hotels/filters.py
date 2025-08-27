@@ -1,6 +1,16 @@
 from django.db.models import F, OuterRef, Q, Subquery
-from django_filters import CharFilter, DateFilter, FilterSet, NumberFilter
+from django_filters import (
+    ChoiceFilter,
+    DateFromToRangeFilter,
+    FilterSet,
+    MultipleChoiceFilter,
+    NumberFilter,
+    RangeFilter,
+)
 
+from all_fixture.choices import PlaceChoices, TypeOfHolidayChoices, TypeOfMealChoices
+from all_fixture.filters.filter_fixture import filter_choices
+from all_fixture.views_fixture import MAX_PRICE, MAX_RATING, MAX_STARS, MIN_PRICE, MIN_RATING, MIN_STARS
 from calendars.models import CalendarPrice
 from hotels.models import Hotel
 
@@ -8,40 +18,59 @@ from hotels.models import Hotel
 class HotelFilter(FilterSet):
     """Класс фильтров для расширенного поиска отелей."""
 
-    check_in_date = DateFilter(
+    date_range = DateFromToRangeFilter(
         method="filter_by_dates",
+        label="Диапазон дат в формате (YYYY-MM-DD)",
     )
-    check_out_date = DateFilter(
-        method="filter_by_dates",
+    country = MultipleChoiceFilter(
+        field_name="country",
+        lookup_expr="iexact",
+        label="Страна отеля",
+        choices=filter_choices(model=Hotel, field="country"),
     )
-    guests = NumberFilter(
-        method="filter_by_guests",
-    )
-    city = CharFilter(
+    city = MultipleChoiceFilter(
         field_name="city",
         lookup_expr="iexact",
+        label="Город отеля",
+        choices=filter_choices(model=Hotel, field="city"),
     )
-    type_of_rest = CharFilter(
+    type_of_rest = ChoiceFilter(
         field_name="type_of_rest",
-        lookup_expr="exact",
+        label="Тип отдыха",
+        choices=TypeOfHolidayChoices.choices,
     )
-    place = CharFilter(
+    place = ChoiceFilter(
         field_name="place",
-        lookup_expr="exact",
+        label="Тип размещения",
+        choices=PlaceChoices.choices,
     )
-    price_gte = NumberFilter(
-        method="filter_by_price",
+    type_of_meals = MultipleChoiceFilter(
+        field_name="type_of_meals__name",
+        label="Тип питания",
+        choices=TypeOfMealChoices.choices,
     )
-    price_lte = NumberFilter(
+    number_of_adults = NumberFilter(
+        field_name="rooms__number_of_adults",
+        label="Количество взрослых",
+    )
+    number_of_children = NumberFilter(
+        field_name="rooms__number_of_children",
+        label="Количество детей до 17 лет",
+    )
+    price = RangeFilter(
         method="filter_by_price",
+        label=f"Диапазон цен стоимости тура (от {MIN_PRICE} до {MAX_PRICE})",
     )
     user_rating = NumberFilter(
         field_name="user_rating",
+        label=f"Пользовательская оценка (от {MIN_RATING} до {MAX_RATING})",
         lookup_expr="gte",
     )
-    star_category = NumberFilter(
+    star_category = MultipleChoiceFilter(
         field_name="star_category",
-        lookup_expr="gte",
+        choices=[(i, str(i)) for i in range(MIN_STARS, MAX_STARS + 1)],
+        label=f"Категория отеля (от {MIN_STARS} до {MAX_STARS})",
+        lookup_expr="exact",
     )
 
     class Meta:
